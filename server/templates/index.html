@@ -1,0 +1,90 @@
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Face Generate Project</title>
+    <script src="jquery.js"></script>
+    <script src="socket.io.js"></script>
+    <script src="main.js"></script>
+    <script src="face-mark.js"></script>
+    <link rel="stylesheet" type="text/css" href="main.css">
+</head>
+<body>
+    <div id="overlay">
+        <div class="spinner"></div>
+        <div class="waiting">Waiting for server ...</div>
+
+    </div>
+    <div class="header-section">
+        <h1>FACE GENERATE</h1>
+    </div>
+    <div class="two-column">
+        <section id="control-panel">
+
+            <div class="file-upload-container is-not-get">
+                <div class="area">
+                    <input type="file" id="file-upload" />
+                    <img id="img_prev" />
+                </div>
+            </div>
+            <div class="progress-container">
+                <div id="progress-wrp">
+                    <div class="progress-bar"></div>
+                    <div class="status">0%</div>
+                </div>
+            </div>
+
+            <div class="btn-area">
+                <select name="" id="select-gender">
+                    <option value="0">Male</option>
+                    <option value="1">Female</option>
+                </select>
+                <select name="" id="select-beard">
+                    <option value="0">Beard</option>
+                    <option value="1">No Beard</option>
+                </select>
+                <button id="btn-execute">Excute</button>
+            </div>
+
+<!--            <div class="select-area-custom">-->
+<!--                <div>-->
+<!--                    <label for="merge-domain">Merge domain: </label>-->
+<!--                    <input type="checkbox" id="merge-domain">-->
+<!--                </div>-->
+
+<!--            </div>-->
+
+            <div class="select-area">
+                <div id="blond-hair-domain">
+                    <input type="checkbox">
+                    <label for="blond-hair-domain">Blond Hair</label>
+                </div>
+                <div id="old-domain">
+                    <input type="checkbox">
+                    <label for="old-domain">Old</label>
+                </div>
+                <div id="smiling-domain">
+                    <input type="checkbox">
+                    <label for="smiling-domain">Smiling</label>
+                </div>
+                <div id="young-domain">
+                    <input type="checkbox">
+                    <label for="young-domain">Young</label>
+                </div>
+            </div>
+
+        </section>
+
+        <div class="divide-area"></div>
+
+        <section id="result-panel">
+            <div id="show-result">
+            </div>
+            <div class="image-container" id="large-image-container">
+                <canvas id="canvas-large-image">Your browser doesn't support canvas</canvas>
+            </div>
+        </section>
+
+    </div>
+</body>
+</html>
