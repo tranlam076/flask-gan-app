@@ -7,19 +7,14 @@ let currentImage = {
 function FaceMark () {
 }
 
-
-let domainMapping = {
-    'Blond Hair': [0, 4, 8],
-    'Old': [1, 5, 9],
-    'Smiling': [2, 6, 10],
-    'Young': [3, 7, 11]
-}
-
 function get_domain_by_id(id) {
-    for (let key in domainMapping) {
-        if (domainMapping[key].includes(id)) {
-            return key
-        }
+//    for (let key in domainMapping) {
+//        if (domainMapping[key].includes(id)) {
+//            return key
+//        }
+//    }
+    if (id >= 0 && id < list_title.length) {
+        return list_title[id]
     }
     return ""
 }
@@ -61,7 +56,7 @@ FaceMark.prototype.drawImage = function (list_src) {
             ctx.font = "20px Georgia"
             ctx.fillStyle = "red";
             ctx.textAlign = "center";
-            ctx.fillText(domain_name, parseInt(x + width/2 - domain_name.length/2*2), y + height + 30);
+            ctx.fillText(domain_name, parseInt(x + width/2 - domain_name.length/2*1.5), y + height + 30);
         };
         img.src = src;
     }

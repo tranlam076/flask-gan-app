@@ -3,6 +3,10 @@ let api = host + '/';
 let loaded_domain = {}
 let current_domain = []
 let no_loaded = []
+let list_src=[]
+let list_checkbox = ["#domain-beard", "#domain-blond-hair", "#domain-eyeglasses", "#domain-female",
+                     "#domain-male", "#domain-old", "#domain-smiling"]
+let list_title = ["Beard", "Blond Hair", "Eyeglasses", "Female", "Male", "Old", "Smiling"]
 function request(url, method, data, callback) {
     $.ajax({
         url: url,
@@ -112,6 +116,7 @@ function addFileAction() {
         image.src = src;
         $('#img_prev')
             .attr('src', src)
+
     }
 
     upload.addEventListener('dragenter', function (e) {
@@ -128,7 +133,6 @@ function addFileAction() {
 
     upload.addEventListener('change', function (e) {
         onFile();
-        console.log( $('#img_prev').css("width"))
     }, false);
 }
 
@@ -156,26 +160,18 @@ function check_domain_loaded(loaded, check) {
 function addBtnAction() {
     $('#btn-execute').on('click', function(){
         let file = $('#file-upload')[0].files[0];
-        let female_domain = [0, 1, 2, 3];
-        let male_beard_domain = [4, 5, 6, 7];
-        let male_no_beard_domain = [8, 9, 10, 11];
         let is_male = $('#select-gender option:selected').val() == "0";
-        let is_beard = $('#select-beard option:selected').val() == "0";
-        let domain_id = []
+        let domain_id = [0, 1, 2, 3, 4, 5, 6]
         current_domain = []
-        if (is_male) {
-            if (is_beard) {
-                domain_id = male_beard_domain;
-            } else {
-                domain_id = male_no_beard_domain;
-            }
-        } else {
-            domain_id = female_domain;
-        }
         let req_domain = ""
-        let check_index = [$('#blond-hair-domain input').prop("checked")? 1: 0, $('#old-domain input').prop("checked")? 1: 0,
-                            $('#smiling-domain input').prop("checked")? 1: 0,
-                            $('#young-domain input').prop("checked")? 1: 0,]
+        let check_index = [$('#domain-beard input').prop("checked")? 1: 0,
+                           $('#domain-blond-hair input').prop("checked")? 1: 0,
+                           $('#domain-eyeglasses input').prop("checked")? 1: 0,
+                           $('#domain-female input').prop("checked")? 1: 0,
+                           $('#domain-male input').prop("checked")? 1: 0,
+                           $('#domain-old input').prop("checked")? 1: 0,
+                           $('#domain-smiling input').prop("checked")? 1: 0]
+
         for (let i = 0; i < check_index.length; i++) {
             if (check_index[i] == 1) {
                 req_domain += domain_id[i] + ","
@@ -185,9 +181,9 @@ function addBtnAction() {
 
         req_domain = req_domain.substring(0, req_domain.length-1)
         if (req_domain == "") {
-            req_domain = 7
-            current_domain.push(7)
-            $('#young-domain').html(gen_checkbox(true, "Young"));
+            req_domain = 0
+            current_domain.push(0)
+            $(list_checkbox[0]).html(gen_checkbox(true, list_title[0]));
         }
         no_loaded = check_domain_loaded(loaded_domain, current_domain)
         req_domain = ""
@@ -217,57 +213,73 @@ function addBtnAction() {
         }
     });
 
-    $('#merge-domain').on('change', function(){
-        let is_merge_domain = $('#merge-domain').prop("checked");
-        let is_young = $('#young-domain input').prop("checked");
-        let is_old = $('#old-domain input').prop("checked");
-        if (is_merge_domain) {
-            if (is_young && is_old) {
-                $('#young-domain').html(gen_checkbox(true, "Young"));
-                $('#old-domain').html(gen_checkbox(false, "Old"));
-            }
-        }
-    });
 
-    $('#young-domain').on('change', function(){
-        let is_merge_domain = $('#merge-domain').prop("checked");
-        let is_young = $('#young-domain input').prop("checked");
-        let is_old = $('#old-domain input').prop("checked");
-        if (is_merge_domain) {
-            if (is_young && is_old) {
-                $('#young-domain').html(gen_checkbox(true, "Young"));
-                $('#old-domain').html(gen_checkbox(false, "Old"));
+    $('#domain-all input').on('change', function(){
+        let is_check_all = $(this).prop("checked");
+        if (is_check_all) {
+            for (let i = 0; i < list_checkbox.length; i++) {
+                $(list_checkbox[i]).html(gen_checkbox(true, list_title[i]))
             }
-        }
-    });
-
-    $('#old-domain').on('change', function(){
-        let is_merge_domain = $('#merge-domain').prop("checked");
-        let is_young = $('#young-domain input').prop("checked");
-        let is_old = $('#old-domain input').prop("checked");
-        if (is_merge_domain) {
-            if (is_young && is_old) {
-                $('#young-domain').html(gen_checkbox(false, "Young"));
-                $('#old-domain').html(gen_checkbox(true, "Old"));
-            }
-        }
-    });
-
-    $('#select-gender').on('change', function(){
-        if ($("#select-gender option:selected").val() ==  "1") {
-            $("#select-beard").hide()
         } else {
-            $("#select-beard").show()
+            for (let i = 0; i < list_checkbox.length; i++) {
+                $(list_checkbox[i]).html(gen_checkbox(false, list_title[i]))
+            }
         }
     });
+
+//    $('#merge-domain').on('change', function(){
+//        let is_merge_domain = $('#merge-domain').prop("checked");
+//        let is_young = $('#young-domain input').prop("checked");
+//        let is_old = $('#old-domain input').prop("checked");
+//        if (is_merge_domain) {
+//            if (is_young && is_old) {
+//                $('#young-domain').html(gen_checkbox(true, "Young"));
+//                $('#old-domain').html(gen_checkbox(false, "Old"));
+//            }
+//        }
+//    });
+
+//    $('#young-domain').on('change', function(){
+//        let is_merge_domain = $('#merge-domain').prop("checked");
+//        let is_young = $('#young-domain input').prop("checked");
+//        let is_old = $('#old-domain input').prop("checked");
+//        if (is_merge_domain) {
+//            if (is_young && is_old) {
+//                $('#young-domain').html(gen_checkbox(true, "Young"));
+//                $('#old-domain').html(gen_checkbox(false, "Old"));
+//            }
+//        }
+//    });
+
+//    $('#old-domain').on('change', function(){
+//        let is_merge_domain = $('#merge-domain').prop("checked");
+//        let is_young = $('#young-domain input').prop("checked");
+//        let is_old = $('#old-domain input').prop("checked");
+//        if (is_merge_domain) {
+//            if (is_young && is_old) {
+//                $('#young-domain').html(gen_checkbox(false, "Young"));
+//                $('#old-domain').html(gen_checkbox(true, "Old"));
+//            }
+//        }
+//    });
+
+//    $('#select-gender').on('change', function(){
+//        if ($("#select-gender option:selected").val() ==  "1") {
+//            $("#select-beard").hide()
+//        } else {
+//            $("#select-beard").show()
+//        }
+//    });
+
+
 }
 
 //-----------------------------------socket-handler---------------------------------
 const socket = io(host);
 $(window).resize(function(){
-    let list_src = localStorage.getItem("list_src")
-    list_src = list_src.split(",")
-    if (list_src[0] == "") {
+//    let list_src = localStorage.getItem("list_src")
+//    list_src = list_src.split(",")
+    if (list_src.length == 0) {
         return
     }
     faceMark.drawImage([])
@@ -278,7 +290,7 @@ $(window).resize(function(){
 
 $(document).ready(function(){
     faceMark.drawImage([]);
-    localStorage.setItem("list_src", "")
+//    localStorage.setItem("list_src", "")
     socket.on('notify', function (responseData) {
         $('#overlay').hide();
         let content = JSON.parse(responseData);
@@ -296,12 +308,31 @@ $(document).ready(function(){
             console.log(current_domain)
             console.log(to_load)
             faceMark.drawImage(to_load);
-            localStorage.setItem("list_src", to_load)
+//            localStorage.setItem("list_src", to_load)
+            list_src = to_load
         }
         console.log(data)
     });
     addFileAction();
     addBtnAction();
+    let image_resizing = setInterval(function () {
+        natural_height = $("#img_prev").prop("naturalHeight")
+        natural_width = $("#img_prev").prop("naturalWidth")
+        scale = natural_width/natural_height
+        $("#img_prev").css('margin-top', -96.666 + "%");
+        if (scale > 1) {
+            $("#img_prev").css('width', 90 + "%");
+            let height = parseInt($("#img_prev").prop("offsetWidth"))/scale
+            let old_margin_top = parseInt($("#img_prev").css('margin-top'));
+            $("#img_prev").css('margin-top', (old_margin_top + height*0.45) + "px");
+            $("#img_prev").css('height', height + 'px');
+
+        } else {
+            $("#img_prev").css('height', 90 + "%");
+            let width = parseInt($("#img_prev").prop("offsetHeight"))*scale
+            $("#img_prev").css('width', width + 'px');
+        }
+    }, 500)
   });
 
 

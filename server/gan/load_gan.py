@@ -11,6 +11,7 @@ Creative Commons, PO Box 1866, Mountain View, CA 94042, USA.
 from server.gan.StarGAN_v2 import StarGAN_v2
 from server.gan.utils import *
 from server import root_dir
+import os
 
 """parsing and configuration"""
 
@@ -22,14 +23,8 @@ class Namespace:
 
 def load_model():
     args = Namespace(hidden_dim=512, latent_dim=16, style_dim=64, img_size=256, img_ch=3,
-                     checkpoint_dir=root_dir + "\\gan\\checkpoint", batch_size=8, num_domains=12)
+                     checkpoint_dir=os.path.join(root_dir, "gan", "checkpoint"), batch_size=8, num_domains=7)
     automatic_gpu_usage()
     gan = StarGAN_v2(args)
     gan.build_model()
-
-    # gan.test(destination_path=r"C:\Users\LamTQ1\Desktop\flask-gan\server\templates\files\output/",
-    #          src_img_path=r"C:\Users\LamTQ1\Desktop\flask-gan\server\templates\files\000007.jpg",
-    #          ref_img_domains=[0])
-    # print(" [*] Test finished!")
-
     return gan

@@ -1,0 +1,68 @@
+function isAround(a, b) {
+	if (Math.abs(a[0] - b[0]) < a[2]/10*1.6 && Math.abs(a[1] - b[1]) < a[2]/10*1.6) return true;
+	return false;
+}
+function mergeArraySingleValue(b, a) {
+	for (let i = 0; i < a.length; i++) {
+		let c = true;
+		for (let j = 0; j < b.length; j++) {
+			if (a[i] == b [j]) {
+				c = false;
+				break;
+			}
+		}
+		if (c) {
+			b.push(a[i]);
+		}
+	}
+	return b;
+}
+let contain = {}
+for (let i = 0; i < listFaces.length; i++) {
+	for(let j = 0; j < listFaces.length; j++){
+		if (isAround(listFaces[i], listFaces[j]) && i != j) {
+			if (!contain['' + i]){
+				contain['' + i] = [];
+				contain['' + i].push(j)	;
+			} else {
+				contain['' + i].push(j)	;
+			}
+		}
+	}
+}
+
+console.log(contain);
+for (let key in contain) {
+	if (contain[key].length > 0) {
+		for (let i = 0; i < contain[key].length; i++) {
+			if (contain['' + contain[key][i]].length > 0){
+				contain[key] = mergeArraySingleValue(contain[key], contain['' + contain[key][i]])
+			}
+		}
+	}
+}
+
+console.log(contain);
+let result = [];
+let ignore = [];
+for (let key in contain) {
+	let c = true;
+	for (let i = 0; i < ignore.length; i++) {
+		for (let j = 0; j < contain[key].length; j++) {
+			if (ignore[i] == contain[key][j]) {
+				c = false;
+				break;
+			}
+		}
+	}
+	if (c) {
+		result.push(contain[key][0]);
+		for (let j = 0; j < contain[key].length; j++) {
+			if (j > 0) {
+				ignore.push(contain[key][j])
+			}
+		}
+	}
+}
+
+console.log(result);

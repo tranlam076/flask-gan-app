@@ -2,6 +2,7 @@ import threading
 import json
 from server import root_dir, soc
 from server.gan import load_gan
+import os
 
 gan = load_gan.load_model()
 
@@ -15,9 +16,9 @@ class face_detect_thread(threading.Thread):
 
     def run(self):
         global gan
-        file_path = root_dir + '\\templates\\files\\'
+        file_path = os.path.join(root_dir, 'templates', 'files') + os.path.sep
         sample = file_path + self.data["params"]["filename"]
-        output = root_dir + '\\templates\\files\\output\\'
+        output = os.path.join(root_dir, 'templates', 'files', 'output') + os.path.sep
         domain = self.data["params"]["domain"].split(",")
         domain = [int(x) for x in domain]
         if self.data["params"]["is_merge"] == "false":

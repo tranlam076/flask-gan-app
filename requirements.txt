@@ -1,7 +1,7 @@
 face_recognition
 werkzeug==1.0.1
 Pillow==5.4.1
-tensorflow==1.15.0
+tensorflow==2.1.0
 tensorflow_addons==0.9.1
 opencv-python==4.4.0.44
 glob2==0.7
