@@ -15,6 +15,7 @@ from server import root_dir
 import glob
 from random import randint
 import os
+import time
 
 
 class StarGAN_v2:
@@ -79,18 +80,21 @@ class StarGAN_v2:
         img_list = glob.glob(os.path.join(root_dir, "gan", "refer", domain_list[domain]) + "/*")
         return img_list[randint(0, len(img_list) - 1)]
 
-    def refer_canvas(self, x_real, x_ref, y_trg, in_path, out_path):
+    def return_canvas(self, mode_, x_real, x_ref, y_trg, in_path, out_path):
         x_real = x_real[:1]
-        x_ref = x_ref[:1]
-        x_ref_post = postprocess_images(x_ref)
-        row_images = np.stack(x_ref_post)
-        row_images = preprocess_fit_train_image(row_images)
         row_images_y = np.stack([y_trg])
-        # s_trg = self.style_encoder_ema([row_images, row_images_y])
 
-        z_trgs = tf.random.normal(shape=[1, 16])
-        z_trg = tf.expand_dims(z_trgs[0], axis=0)
-        s_trg = self.mapping_network_ema([z_trg, row_images_y])
+        if mode_ == "auto":
+            z_trgs = tf.random.normal(shape=[1, 16])
+            z_trg = tf.expand_dims(z_trgs[0], axis=0)
+            s_trg = self.mapping_network_ema([z_trg, row_images_y])
+        else:
+            print("here")
+            x_ref = x_ref[:1]
+            x_ref_post = postprocess_images(x_ref)
+            row_images = np.stack(x_ref_post)
+            row_images = preprocess_fit_train_image(row_images)
+            s_trg = self.style_encoder_ema([row_images, row_images_y])
 
         image = postprocess_images(self.generator_ema([x_real, s_trg]))
         image = Image.fromarray(np.uint8(image[0]), 'RGB')
@@ -106,7 +110,7 @@ class StarGAN_v2:
         image = image.resize(size)
         image.save(out_path)
 
-    def test(self, destination_path=None, src_img_path=None, ref_img_path=None, ref_img_domains=None):
+    def test(self, destination_path=None, src_img_path=None, ref_img_path=None, ref_img_domains=None, mode_="auto"):
         return_img_path = []
         if src_img_path is None or destination_path is None:
             return return_img_path
@@ -117,15 +121,14 @@ class StarGAN_v2:
         src_name = os.path.basename(src_name)
         src_img = load_images(src_img_path, self.img_size, self.img_ch)
         src_img = tf.expand_dims(src_img, axis=0)
-        for ref_img_domain in ref_img_domains:
-            image_out = '{}_{}{}'.format(src_name, ref_img_domain, src_extension)
-            return_img_path.append(image_out)
-
-            ref_img_path = src_img_path
-            # ref_img_path = self.get_random_refer_path(ref_img_domain)
+        ref_img = None
+        if mode_ == "refer":
             ref_img = load_images(ref_img_path, self.img_size, self.img_ch)
             ref_img = tf.expand_dims(ref_img, axis=0)
 
+        for ref_img_domain in ref_img_domains:
+            image_out = '{}_{}_{}{}'.format(src_name, str(time.time()), ref_img_domain, src_extension)
+            return_img_path.append(image_out)
             ref_img_domain = tf.expand_dims([ref_img_domain], axis=0)
-            self.refer_canvas(src_img, ref_img, ref_img_domain, src_img_path, destination_path + image_out)
+            self.return_canvas(mode_, src_img, ref_img, ref_img_domain, src_img_path, destination_path + image_out)
         return return_img_path

@@ -43,7 +43,7 @@ body {
 .two-column {
     display: grid;
     grid-column-gap: 10px;
-    grid-template-columns: 2fr 0.1fr 6fr;
+    grid-template-columns: auto 0.1fr 6fr;
     margin: 15px;
     height: max-content;
 }
@@ -65,7 +65,7 @@ body {
     grid-template-columns: 2fr 2fr 2fr 2fr;
     height: max-content;
     width: 320px;
-    margin-top: 40px;
+    margin-top: 20px;
 }
 
 .select-area div {
@@ -146,6 +146,7 @@ body {
     opacity: 0.5;
     text-align: center;
     margin-left: 7;
+    margin-bottom: 10px;
 }
 
 .area:hover,
@@ -257,14 +258,13 @@ body {
 
 .image-container {
     width: 100%;
-    height: 500px;
     background: #000;
     user-select: none;
 }
 
 #canvas-large-image {
     width: 100%;
-    height: 90%;
+    height: 100%;
 }
 
 .mark-face-rect {
@@ -327,5 +327,32 @@ body {
     letter-spacing: 10px;
 }
 
+#btn-show-label {
+    display: none;
+}
 
+#show-result {
+    position: absolute;
+}
 
+.progress-bar-select-style {
+    margin-top: 10px;
+    width: 100%;
+}
+
+.progress-bar-select-style progress {
+    width: 100%;
+    height: 30px;
+}
+
+#num-of-style {
+    width: 50px;
+}
+
+.span-info {
+    margin-left: 20px;
+}
+
+.refer-info {
+    display: none;
+}

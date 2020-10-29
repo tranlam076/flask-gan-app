@@ -1,12 +1,15 @@
 let host = window.location.href.substring(0, window.location.href.lastIndexOf('/'))
 let api = host + '/';
-let loaded_domain = {}
-let current_domain = []
-let no_loaded = []
-let list_src=[]
+let mode = "auto"
+let num_of_style = 1;
+let current_style = 1
+let loaded_domain = {};
+let current_domain = [];
+let no_loaded = [];
+let list_src=[];
 let list_checkbox = ["#domain-beard", "#domain-blond-hair", "#domain-eyeglasses", "#domain-female",
                      "#domain-male", "#domain-old", "#domain-smiling"]
-let list_title = ["Beard", "Blond Hair", "Eyeglasses", "Female", "Male", "Old", "Smiling"]
+let list_title = ["Beard", "Blond Hair", "Eyeglasses", "Female", "Male", "Old", "Smiling"];
 function request(url, method, data, callback) {
     $.ajax({
         url: url,
@@ -36,15 +39,21 @@ Upload.prototype.getSize = function() {
 Upload.prototype.getName = function() {
     return this.file.name;
 };
-Upload.prototype.doUpload = function (url, domain, is_merge) {
+Upload.prototype.doUpload = function (url, domain, mode, num_of_style) {
     let that = this;
     let formData = new FormData();
     $('.progress-container').show();
 
     // add assoc key values, this will be posts values
-    formData.append("file", this.file, this.getName());
+    formData.append("file_source", this.file, this.getName());
+
+    if (mode == "refer") {
+        let file = $('#file-upload-refer')[0].files[0];
+        formData.append("file_refer", file, file.name);
+    }
     formData.append('domain', domain);
-    formData.append('is_merge', is_merge);
+    formData.append('mode', mode);
+    formData.append('num_of_style', num_of_style);
 
     $.ajax({
         type: "POST",
@@ -61,7 +70,6 @@ Upload.prototype.doUpload = function (url, domain, is_merge) {
             $('.progress-container').hide();
             console.log(data.data);
             localStorage.setItem('job_id', data.data['job_id']);
-//            faceMark.drawImage(api + 'files/output/' + data.data['src']);
             $('#overlay').show();
         },
         error: function (error) {
@@ -97,7 +105,7 @@ function revokeObjectURL(url) {
     return (window.URL) ? window.URL.revokeObjectURL(url) : window.webkitURL.revokeObjectURL(url);
 }
 
-function addFileAction() {
+function addSourceFileAction() {
     let upload = document.getElementById('file-upload');
     function onFile() {
         let me = this,
@@ -136,6 +144,46 @@ function addFileAction() {
     }, false);
 }
 
+function addReferFileAction() {
+    let upload = document.getElementById('file-upload-refer');
+    function onFile() {
+        let me = this,
+        file = upload.files[0],
+        name = file.name.split(".")[1]
+        current_domain = []
+        loaded_domain = {}
+        name = name.toLowerCase()
+        $(".area").css("opacity", "1")
+        if (name != "png" && name != "jpg" && name != "jpeg") {
+            alert("Invalid image format")
+            return
+        }
+        var src = createObjectURL(file);
+        var image = new Image();
+        image.src = src;
+        $('#img_prev_refer')
+            .attr('src', src)
+    }
+
+    upload.addEventListener('dragenter', function (e) {
+        upload.parentNode.className = 'area dragging';
+    }, false);
+
+    upload.addEventListener('dragleave', function (e) {
+        upload.parentNode.className = 'area';
+    }, false);
+
+    upload.addEventListener('dragdrop', function (e) {
+        onFile();
+    }, false);
+
+    upload.addEventListener('change', function (e) {
+
+        console.log("000000")
+        onFile();
+    }, false);
+}
+
 
 function gen_checkbox(is_check, label) {
     let checkbox_checked = `<input type="checkbox" checked="checked">${label}</label>`
@@ -159,7 +207,16 @@ function check_domain_loaded(loaded, check) {
 
 function addBtnAction() {
     $('#btn-execute').on('click', function(){
+        num_of_style = $("#num-of-style").val();
+        if (num_of_style < 1) {
+            num_of_style = 1
+        }
+        if (num_of_style > 10) {
+            num_of_style = 10
+        }
+        $("#num-of-style").val(num_of_style)
         let file = $('#file-upload')[0].files[0];
+        let file_refer = $('#file-upload-refer')[0].files[0];
         let is_male = $('#select-gender option:selected').val() == "0";
         let domain_id = [0, 1, 2, 3, 4, 5, 6]
         current_domain = []
@@ -175,46 +232,37 @@ function addBtnAction() {
         for (let i = 0; i < check_index.length; i++) {
             if (check_index[i] == 1) {
                 req_domain += domain_id[i] + ","
-                current_domain.push(domain_id[i])
+                current_domain.push(i)
             }
         }
 
         req_domain = req_domain.substring(0, req_domain.length-1)
         if (req_domain == "") {
             req_domain = 0
-            current_domain.push(0)
             $(list_checkbox[0]).html(gen_checkbox(true, list_title[0]));
         }
-        no_loaded = check_domain_loaded(loaded_domain, current_domain)
-        req_domain = ""
-        if (no_loaded.length > 0) {
-            for (let i = 0; i < no_loaded.length; i++) {
-                req_domain += no_loaded[i] + ","
+
+        let mode = $("#select-mode option:selected").val()
+        if (mode == "refer") {
+            if (file_refer) {
+                faceMark.drawImage([]);
+                let upload = new Upload(file_refer);
+            } else {
+                alert('choose refer file first');
             }
         }
-        req_domain = req_domain.substring(0, req_domain.length-1)
-        let is_merge_domain = $("#merge-domain").prop("checked")
+
         if (file) {
             faceMark.drawImage([]);
             let upload = new Upload(file);
-            if (req_domain != "") {
-                $('#overlay').show();
-                upload.doUpload(api + 'upload', req_domain, is_merge_domain);
-            } else {
-                let to_load = []
-                for (let i = 0; i < current_domain.length; i++) {
-                    to_load.push(loaded_domain[current_domain[i]])
-                }
-                faceMark.drawImage(to_load)
-                localStorage.setItem("list_src", to_load)
-            }
+            upload.doUpload(api + 'upload', req_domain, mode, num_of_style);
         } else {
-            alert('choose file first');
+            alert('choose source file first');
         }
     });
 
 
-    $('#domain-all input').on('change', function(){
+    $('#domain-all input').unbind().on('change', function(){
         let is_check_all = $(this).prop("checked");
         if (is_check_all) {
             for (let i = 0; i < list_checkbox.length; i++) {
@@ -227,51 +275,78 @@ function addBtnAction() {
         }
     });
 
-//    $('#merge-domain').on('change', function(){
-//        let is_merge_domain = $('#merge-domain').prop("checked");
-//        let is_young = $('#young-domain input').prop("checked");
-//        let is_old = $('#old-domain input').prop("checked");
-//        if (is_merge_domain) {
-//            if (is_young && is_old) {
-//                $('#young-domain').html(gen_checkbox(true, "Young"));
-//                $('#old-domain').html(gen_checkbox(false, "Old"));
-//            }
-//        }
-//    });
 
-//    $('#young-domain').on('change', function(){
-//        let is_merge_domain = $('#merge-domain').prop("checked");
-//        let is_young = $('#young-domain input').prop("checked");
-//        let is_old = $('#old-domain input').prop("checked");
-//        if (is_merge_domain) {
-//            if (is_young && is_old) {
-//                $('#young-domain').html(gen_checkbox(true, "Young"));
-//                $('#old-domain').html(gen_checkbox(false, "Old"));
-//            }
-//        }
-//    });
-
-//    $('#old-domain').on('change', function(){
-//        let is_merge_domain = $('#merge-domain').prop("checked");
-//        let is_young = $('#young-domain input').prop("checked");
-//        let is_old = $('#old-domain input').prop("checked");
-//        if (is_merge_domain) {
-//            if (is_young && is_old) {
-//                $('#young-domain').html(gen_checkbox(false, "Young"));
-//                $('#old-domain').html(gen_checkbox(true, "Old"));
-//            }
-//        }
-//    });
-
-//    $('#select-gender').on('change', function(){
-//        if ($("#select-gender option:selected").val() ==  "1") {
-//            $("#select-beard").hide()
-//        } else {
-//            $("#select-beard").show()
-//        }
-//    });
+    $('#select-mode').on('change', function(){
+        if ($("#select-mode option:selected").val() ==  "refer") {
+            $(".style-info").hide()
+            $(".refer-info").show()
+            current_style = 1;
+            for (let i = 0; i < list_checkbox.length; i++) {
+                $(list_checkbox[i]).html(gen_checkbox(false, list_title[i]))
+                $(list_checkbox[i]).unbind().on("click", function() {
+                    for (let j = 0; j < list_checkbox.length; j++) {
+                        $(list_checkbox[j]).html(gen_checkbox(false, list_title[j]))
+                    }
+                    $(this).html(gen_checkbox(true, list_title[i]))
+                })
+            }
+        } else {
+            $(".style-info").show()
+            $(".refer-info").hide()
+            for (let i = 0; i < list_checkbox.length; i++) {
+                $(list_checkbox[i]).html(gen_checkbox(false, list_title[i]))
+                $(list_checkbox[i]).unbind()
+            }
+            $("#domain-all").html(gen_checkbox(false, "All"))
+            $('#domain-all input').unbind().on('change', function(){
+                let is_check_all = $(this).prop("checked");
+                if (is_check_all) {
+                    for (let i = 0; i < list_checkbox.length; i++) {
+                        $(list_checkbox[i]).html(gen_checkbox(true, list_title[i]))
+                    }
+                } else {
+                    for (let i = 0; i < list_checkbox.length; i++) {
+                        $(list_checkbox[i]).html(gen_checkbox(false, list_title[i]))
+                    }
+                }
+            });
+        }
+        faceMark.drawImage(list_src);
+        mode = $("#select-mode option:selected").val()
+    });
 
 
+    $("#btn-hide-label").on("click", function() {
+        $("#btn-hide-label").hide();
+        $("#btn-show-label").show();
+        is_show_label = false;
+        faceMark.drawImage(list_src);
+    })
+    $("#btn-show-label").on("click", function() {
+        $("#btn-hide-label").show();
+        $("#btn-show-label").hide();
+        is_show_label = true;
+        faceMark.drawImage(list_src);
+    })
+}
+
+function image_fixing(id) {
+    natural_height = $(id).prop("naturalHeight")
+    natural_width = $(id).prop("naturalWidth")
+    scale = natural_width/natural_height
+    $(id).css('margin-top', -96.666 + "%");
+    if (scale > 1) {
+        $(id).css('width', 90 + "%");
+        let height = parseInt($(id).prop("offsetWidth"))/scale
+        let old_margin_top = parseInt($(id).css('margin-top'));
+        $(id).css('margin-top', (old_margin_top + height*0.45) + "px");
+        $(id).css('height', height + 'px');
+
+    } else {
+        $(id).css('height', 90 + "%");
+        let width = parseInt($(id).prop("offsetHeight"))*scale
+        $(id).css('width', width + 'px');
+    }
 }
 
 //-----------------------------------socket-handler---------------------------------
@@ -297,42 +372,28 @@ $(document).ready(function(){
         let data = JSON.parse(content['data']);
         let job = localStorage.getItem('job_id');
         if (job ===   data["job_id"]) {
-            let to_load = []
-            for (let i = 0; i < data["data"].length; i++) {
-                loaded_domain['' + no_loaded[i]] = data["data"][i]
-            }
-            for (let i = 0; i < current_domain.length; i++) {
-                to_load.push(loaded_domain[current_domain[i]])
-            }
-            console.log(loaded_domain)
-            console.log(current_domain)
-            console.log(to_load)
-            faceMark.drawImage(to_load);
-//            localStorage.setItem("list_src", to_load)
-            list_src = to_load
+            console.log(data)
+            list_src = data["data"];
+            faceMark.drawImage(list_src);
         }
         console.log(data)
     });
-    addFileAction();
+    addSourceFileAction();
+    addReferFileAction();
     addBtnAction();
     let image_resizing = setInterval(function () {
-        natural_height = $("#img_prev").prop("naturalHeight")
-        natural_width = $("#img_prev").prop("naturalWidth")
-        scale = natural_width/natural_height
-        $("#img_prev").css('margin-top', -96.666 + "%");
-        if (scale > 1) {
-            $("#img_prev").css('width', 90 + "%");
-            let height = parseInt($("#img_prev").prop("offsetWidth"))/scale
-            let old_margin_top = parseInt($("#img_prev").css('margin-top'));
-            $("#img_prev").css('margin-top', (old_margin_top + height*0.45) + "px");
-            $("#img_prev").css('height', height + 'px');
-
-        } else {
-            $("#img_prev").css('height', 90 + "%");
-            let width = parseInt($("#img_prev").prop("offsetHeight"))*scale
-            $("#img_prev").css('width', width + 'px');
-        }
+        image_fixing("#img_prev")
+        image_fixing("#img_prev_refer")
     }, 500)
+
+    document.getElementById('style-progress-bar').addEventListener('click', function(e) {
+        var x = e.pageX - this.offsetLeft;
+        var x_convert = x / document.getElementById('style-progress-bar').offsetWidth;
+        document.getElementById('style-progress-bar').value = x_convert;
+        current_style = parseInt(x_convert/(1/num_of_style)) + 1
+        document.getElementById('style-progress-bar').value = current_style/num_of_style
+        faceMark.drawImage(list_src)
+    });
   });
 
 

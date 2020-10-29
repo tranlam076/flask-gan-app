@@ -4,6 +4,7 @@ let currentImage = {
     width: 0,
     height: 0
 };
+let is_show_label = true
 function FaceMark () {
 }
 
@@ -20,7 +21,6 @@ function get_domain_by_id(id) {
 }
 
 FaceMark.prototype.drawImage = function (list_src) {
-
     let canvas = document.getElementById('canvas-large-image');
     canvas.height = document.getElementById('canvas-large-image').offsetHeight;
     canvas.width = document.getElementById('canvas-large-image').offsetWidth;
@@ -30,11 +30,13 @@ FaceMark.prototype.drawImage = function (list_src) {
         ctx.clearRect(0, 0, canvas.width, canvas.height);
         return;
     }
-    let canvas_split_width = parseInt((canvas.width - 5*(list_src.length + 1)) / list_src.length)
-    for (let i = 0; i < list_src.length; i++) {
+    console.log(current_style)
+    current_src = list_src[current_style-1]
+    let canvas_split_width = parseInt((canvas.width - 5*(current_src.length + 1)) / current_src.length)
+    for (let i = 0; i < current_src.length; i++) {
         let domain_name = get_domain_by_id(current_domain[i])
         console.log(domain_name)
-        src = api + 'files/' +  list_src[i]
+        src = api + 'files/' +  current_src[i]
         let x,y,width,height;
         let img = new Image();
         img.onload = function () {
@@ -56,7 +58,9 @@ FaceMark.prototype.drawImage = function (list_src) {
             ctx.font = "20px Georgia"
             ctx.fillStyle = "red";
             ctx.textAlign = "center";
-            ctx.fillText(domain_name, parseInt(x + width/2 - domain_name.length/2*1.5), y + height + 30);
+            if (is_show_label) {
+                ctx.fillText(domain_name, parseInt(x + width/2 - domain_name.length/2*1.5), y + height + 30);
+            }
         };
         img.src = src;
     }

@@ -43,16 +43,17 @@ def more_contrast(img):
 
 
 def save_file():
-    f = request.files['file']
+    source_f = request.files['file_source']
+    print(request.form)
     domain = request.form['domain']
-    is_merge = request.form['is_merge']
-    print(domain, is_merge)
-    file_name = str(time.time()) + secure_filename(f.filename)
-    file_path = os.path.join(root_dir, "templates", "files", file_name)
-    f.save(file_path)
+    mode = request.form['mode']
+    num_of_style = request.form['num_of_style']
+    source_file_name = str(time.time()) + secure_filename(source_f.filename)
+    file_path = os.path.join(root_dir, "templates", "files", source_file_name)
+    source_f.save(file_path)
 
     img = cv2.imread(file_path)
-    # img = more_contrast(img)
+    img = more_contrast(img)
     imgS = cv2.cvtColor(img.copy(), cv2.COLOR_BGR2RGB)
     facesCurFrame = face_recognition.face_locations(imgS)
     if len(facesCurFrame) > 0:
@@ -60,20 +61,45 @@ def save_file():
         y1, x2, y2, x1 = faceLoc
         width = x2 - x1
         height = y2 - y1
-        x1 = max(x1 - width//4, 0)
-        y1 = max(y1 - height//2, 0)
-        x2 = min(x2 + width//4, imgS.shape[1])
-        y2 = min(y2 + height//3, imgS.shape[0])
+        x1 = max(x1 - width // 4, 0)
+        y1 = max(y1 - height // 2, 0)
+        x2 = min(x2 + width // 4, imgS.shape[1])
+        y2 = min(y2 + height // 3, imgS.shape[0])
         # y1, x2, y2, x1 = y1 * 4, x2 * 4, y2 * 4, x1 * 4
         img = img[y1:y2, x1:x2]
         cv2.imwrite(file_path, img)
 
+    refer_file_name = ""
+    if mode == "refer":
+        refer_f = request.files['file_refer']
+        refer_file_name = str(time.time()) + secure_filename(refer_f.filename)
+        file_path = os.path.join(root_dir, "templates", "files", refer_file_name)
+        refer_f.save(file_path)
+        img = cv2.imread(file_path)
+        img = more_contrast(img)
+        imgS = cv2.cvtColor(img.copy(), cv2.COLOR_BGR2RGB)
+        facesCurFrame = face_recognition.face_locations(imgS)
+        if len(facesCurFrame) > 0:
+            faceLoc = facesCurFrame[0]
+            y1, x2, y2, x1 = faceLoc
+            width = x2 - x1
+            height = y2 - y1
+            x1 = max(x1 - width // 4, 0)
+            y1 = max(y1 - height // 2, 0)
+            x2 = min(x2 + width // 4, imgS.shape[1])
+            y2 = min(y2 + height // 3, imgS.shape[0])
+            # y1, x2, y2, x1 = y1 * 4, x2 * 4, y2 * 4, x1 * 4
+            img = img[y1:y2, x1:x2]
+            cv2.imwrite(file_path, img)
+
     sub_id = "id" + str(time.time())
     #
     thread_handler.file_process({
-        "filename": file_name,
+        "source": source_file_name,
+        "refer": refer_file_name,
         "domain": domain,
-        "is_merge": is_merge
+        "mode": mode,
+        "num_of_style": num_of_style
     }, sub_id)
     return Response(json.dumps({
         'status': 'ok',

@@ -4,6 +4,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Face Generate Project</title>
     <script src="jquery.js"></script>
+    <script src="easybar.min.js"></script>
     <script src="socket.io.js"></script>
     <script src="main.js"></script>
     <script src="face-mark.js"></script>
@@ -26,12 +27,27 @@
                     <input type="file" id="file-upload" />
                     <img id="img_prev" />
                 </div>
+
+                <div class="area refer-info">
+                    <input type="file" id="file-upload-refer" />
+                    <img id="img_prev_refer" />
+                </div>
             </div>
             <div class="progress-container">
                 <div id="progress-wrp">
                     <div class="progress-bar"></div>
                     <div class="status">0%</div>
                 </div>
+            </div>
+
+            <div class="btn-area">
+                <select name="" id="select-mode">
+                    <option value="auto">Auto Generate</option>
+                    <option value="refer">Refer Generate</option>
+                </select>
+
+                <span class="span-info style-info">Style per domain</span>
+                <input id="num-of-style" class="style-info" type="number" value="1" min="1" max="5">
             </div>
 
             <div class="select-area">
@@ -63,23 +79,21 @@
                     <input type="checkbox">
                     <label for="domain-smiling">Smiling</label>
                 </div>
-                <div id="domain-all">
+                <div id="domain-all" class="style-info">
                     <input type="checkbox">
                     <label for="domain-all">All</label>
                 </div>
             </div>
 
+
             <div class="btn-area">
-<!--                <select name="" id="select-gender">-->
-<!--                    <option value="0">Male</option>-->
-<!--                    <option value="1">Female</option>-->
-<!--                </select>-->
-<!--                <select name="" id="select-beard">-->
-<!--                    <option value="0">Beard</option>-->
-<!--                    <option value="1">No Beard</option>-->
-<!--                </select>-->
                 <button id="btn-execute">Excute</button>
             </div>
+
+            <div class="progress-bar-select-style style-info">
+                <progress id="style-progress-bar" value="0" max="1"></progress>
+            </div>
+
 
 <!--            <div class="select-area-custom">-->
 <!--                <div>-->
@@ -95,6 +109,8 @@
 
         <section id="result-panel">
             <div id="show-result">
+                <button id="btn-hide-label" class="label-btn">Hide label</button>
+                <button id="btn-show-label" class="label-btn">Show label</button>
             </div>
             <div class="image-container" id="large-image-container">
                 <canvas id="canvas-large-image">Your browser doesn't support canvas</canvas>
