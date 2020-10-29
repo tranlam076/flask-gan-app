@@ -86,11 +86,11 @@ class StarGAN_v2:
         row_images = np.stack(x_ref_post)
         row_images = preprocess_fit_train_image(row_images)
         row_images_y = np.stack([y_trg])
-        s_trg = self.style_encoder_ema([row_images, row_images_y])
+        # s_trg = self.style_encoder_ema([row_images, row_images_y])
 
-        # z_trgs = tf.random.normal(shape=[1, 16])
-        # z_trg = tf.expand_dims(z_trgs[0], axis=0)
-        # s_trg = self.mapping_network_ema([z_trg, row_images_y])
+        z_trgs = tf.random.normal(shape=[1, 16])
+        z_trg = tf.expand_dims(z_trgs[0], axis=0)
+        s_trg = self.mapping_network_ema([z_trg, row_images_y])
 
         image = postprocess_images(self.generator_ema([x_real, s_trg]))
         image = Image.fromarray(np.uint8(image[0]), 'RGB')
@@ -121,8 +121,8 @@ class StarGAN_v2:
             image_out = '{}_{}{}'.format(src_name, ref_img_domain, src_extension)
             return_img_path.append(image_out)
 
-            # ref_img_path = src_img_path
-            ref_img_path = self.get_random_refer_path(ref_img_domain)
+            ref_img_path = src_img_path
+            # ref_img_path = self.get_random_refer_path(ref_img_domain)
             ref_img = load_images(ref_img_path, self.img_size, self.img_ch)
             ref_img = tf.expand_dims(ref_img, axis=0)
 

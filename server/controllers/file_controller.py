@@ -52,7 +52,7 @@ def save_file():
     f.save(file_path)
 
     img = cv2.imread(file_path)
-    img = more_contrast(img)
+    # img = more_contrast(img)
     imgS = cv2.cvtColor(img.copy(), cv2.COLOR_BGR2RGB)
     facesCurFrame = face_recognition.face_locations(imgS)
     if len(facesCurFrame) > 0:

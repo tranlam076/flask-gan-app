@@ -263,9 +263,8 @@ body {
 }
 
 #canvas-large-image {
-    margin-top: 100px;
     width: 100%;
-    height: 66%;
+    height: 90%;
 }
 
 .mark-face-rect {
